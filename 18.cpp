@@ -53,11 +53,32 @@ inline bool operator<(const Record& lhs, const Record& rhs)
   return (lhs.actor).compare(rhs.actor);
 }
 
+void printRecordDetail(Record r){
+         cout << "================" << endl;
+        cout << " * Actor : " << r.actor << endl;
+        cout << " * Search: " << endl;
+        cout << "   rooms : " << r.apart_search.nrooms << endl;
+        cout << "   square: " << r.apart_search.square << endl;
+        cout << "   floor : " << r.apart_search.floor << endl;
+        cout << "   region: " << r.apart_search.region << endl;
+        cout << " * Exist : " << endl;
+        cout << "   rooms : " << r.apart_exist.nrooms << endl;
+        cout << "   square: " << r.apart_exist.square << endl;
+        cout << "   floor : " << r.apart_exist.floor << endl;
+        cout << "   region: " << r.apart_exist.region << endl;
+        cout << "================" << endl;
+}
+
+float abs(float x){
+  return x > 0 ? x : -x;
+}
+
 int main(){
   set<Record> Records;
   string choice;
   cout << "Hello, friend" << endl;
   do {
+    cout << "================" << endl;
     cout << "Please select what you want to do: " << endl;
     cout << "  1. Insert new data." << endl;
     cout << "  2. Search data." << endl;
@@ -71,24 +92,39 @@ int main(){
       Records.insert(r);
     } else if (choice.compare("2") == 0){
       // search data
+      if (Records.size() == 0){
+        cout << "You need to have at least one record to process search" << endl;
+        break;
+      };
+      Record rec = askForNewRecord();
+      bool found = false;
+      // find acceptable variant
+      for (set<Record>::iterator r = Records.begin(); r != Records.end(); r++){
+        // main comparison
+        if (
+          r->apart_exist.floor == rec.apart_search.floor &&
+          r->apart_exist.nrooms == rec.apart_search.nrooms &&
+          abs(1 - rec.apart_search.square / r->apart_exist.square) < 0.1
+        ) {
+          // found
+          cout << "=== FOUND ===" << endl;
+          printRecordDetail(*r);
+          cout << "=============" << endl;
+          Records.erase(r);
+          found = true;
+          break;
+        }
+      }
+      if (!found){
+        cout << "Inserting your data ..." << endl;
+        Records.insert(rec);
+      }
     } else if (choice.compare("3") == 0){
       // print all data;
       int i = 1;
       for (set<Record>::iterator r = Records.begin(); r != Records.end(); r++){
-        cout << "================" << endl;
         cout << "Record #" << i << endl;
-        cout << " * Actor : " << r->actor << endl;
-        cout << " * Search: " << endl;
-        cout << "   rooms : " << r->apart_search.nrooms << endl;
-        cout << "   square: " << r->apart_search.square << endl;
-        cout << "   floor : " << r->apart_search.floor << endl;
-        cout << "   region: " << r->apart_search.region << endl;
-        cout << " * Exist : " << endl;
-        cout << "   rooms : " << r->apart_exist.nrooms << endl;
-        cout << "   square: " << r->apart_exist.square << endl;
-        cout << "   floor : " << r->apart_exist.floor << endl;
-        cout << "   region: " << r->apart_exist.region << endl;
-        cout << "================" << endl;
+        printRecordDetail(*r);
         i++;
       }
     } else choice = "quit";
